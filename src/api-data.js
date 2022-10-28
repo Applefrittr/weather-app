@@ -40,7 +40,7 @@ export async function LocationWeather(query) {
 
   // geo locate API call to openweather.org, to pull location info, specifically state and country
   const locale = await fetch(
-    `http://api.openweathermap.org/geo/1.0/direct?q=${
+    `https://api.openweathermap.org/geo/1.0/direct?q=${
       query ? query : "new york"
     }&limit=1&appid=${key}`,
     { mode: "cors" }
