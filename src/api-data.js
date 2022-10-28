@@ -11,9 +11,9 @@ export async function LocationPic(query) {
   const picData = await picture.json();
 
   // Since our fetch request will return data on hundreds of photos with the query tag, pick one at random from the first 5
-  const num = Math.floor(Math.random() * 5)
-  const randomImg = picData.results[num]
-  console.log(randomImg)
+  const num = Math.floor(Math.random() * 5);
+  const randomImg = picData.results[num];
+  console.log(randomImg);
   // conditional to execute picture fade when a new query is searched.  The layered background elements use css-transition: opacity and class toggling
   // to give the fade effect between images
   if (elements.background1.classList.contains("active-bg")) {
@@ -27,15 +27,17 @@ export async function LocationPic(query) {
   }
 
   return {
-    photographer: `${randomImg.user.first_name} ${randomImg.user.last_name}`,
-    link: randomImg.user.links.html
-  }
+    photographer: `${randomImg.user.first_name}${
+      randomImg.user.last_name ? " " + randomImg.user.last_name : ""
+    }`,
+    link: randomImg.user.links.html,
+  };
 }
 
 // async function that pulls weather and location info of the target query from openweather.org
 export async function LocationWeather(query) {
   const key = "89241ba92f96e488e73448b0513d1f8b";
-  
+
   // geo locate API call to openweather.org, to pull location info, specifically state and country
   const locale = await fetch(
     `http://api.openweathermap.org/geo/1.0/direct?q=${
@@ -53,13 +55,28 @@ export async function LocationWeather(query) {
     }&units=imperial&appid=89241ba92f96e488e73448b0513d1f8b`,
     { mode: "cors" }
   );
-  
+
   const weatherData = await weather.json();
 
-  // console.log(localeData);
-  // console.log(weatherData);
-  
-  const time = new Date((weatherData.dt + weatherData.timezone) * 1000).toUTCString().slice(0, 22);
+  console.log(weatherData);
+
+  const time = new Date((weatherData.dt + weatherData.timezone) * 1000)
+    .toUTCString()
+    .slice(0, 22);
+
+  // Nightmode!  Pulls current time and sunrise - sunset data from API query to determine if night-mode applies.
+  if (
+    weatherData.dt < weatherData.sys.sunrise ||
+    weatherData.dt > weatherData.sys.sunset
+  ) {
+    elements.searchElement.classList.add("night-mode");
+    elements.weatherInfo.classList.add("night-mode");
+    elements.footer.classList.add("night-mode");
+  } else {
+    elements.searchElement.classList.remove("night-mode");
+    elements.weatherInfo.classList.remove("night-mode");
+    elements.footer.classList.remove("night-mode");
+  }
 
   // return an object which contains all info weather and location info to be displayed to the user
   return {
@@ -74,6 +91,6 @@ export async function LocationWeather(query) {
     country: localeData[0].country,
     min: weatherData.main.temp_min,
     max: weatherData.main.temp_max,
-    time
+    time,
   };
 }
